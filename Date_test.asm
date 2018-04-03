@@ -50,6 +50,8 @@ while_date_positive:
 	mflo $a2 # Phan nguyen con lai.
 	j while_date_positive
 end_while_date_positive:	
+	sb $zero, 10($a3) # Them \0.
 	addi $v0, $a3, 0
 	jr $ra
+
 end_program:
