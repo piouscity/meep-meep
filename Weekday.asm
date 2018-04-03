@@ -76,6 +76,7 @@ Weekday:
 		not_leap_1:
 			addi $s0, $s0, 0
 		end_not_leap_1:
+		j end_weekmonth
 	end_January:
 
 	# Thang 2
@@ -89,6 +90,7 @@ Weekday:
 		not_leap_2:
 			addi $s0, $s0, 3
 		end_not_leap_2:
+		j end_weekmonth
 	end_February:
 
 	# Thang 3
@@ -97,6 +99,7 @@ Weekday:
 	j end_March
 	March:
 		addi $s0, $s0, 3
+		j end_weekmonth
 	end_March:
 
 	# Thang 4
@@ -105,6 +108,7 @@ Weekday:
 	j end_April
 	April:
 		addi $s0, $s0, 6
+		j end_weekmonth
 	end_April:
 
 	# Thang 5
@@ -113,6 +117,7 @@ Weekday:
 	j end_May
 	May:
 		addi $s0, $s0, 1
+		j end_weekmonth
 	end_May:
 
 	# Thang 6
@@ -121,6 +126,7 @@ Weekday:
 	j end_June
 	June:
 		addi $s0, $s0, 4
+		j end_weekmonth
 	end_June:
 
 	# Thang 7
@@ -129,6 +135,7 @@ Weekday:
 	j end_July
 	July:
 		addi $s0, $s0, 6
+		j end_weekmonth
 	end_July:
 
 	# Thang 8
@@ -137,6 +144,7 @@ Weekday:
 	j end_August
 	August:
 		addi $s0, $s0, 2
+		j end_weekmonth
 	end_August:
 
 	# Thang 9
@@ -145,6 +153,7 @@ Weekday:
 	j end_Sep
 	Sep:
 		addi $s0, $s0, 5
+		j end_weekmonth
 	end_Sep:
 	
 	# Thang 10
@@ -153,6 +162,7 @@ Weekday:
 	j end_Oct
 	Oct:
 		addi $s0, $s0, 0
+		j end_weekmonth
 	end_Oct:
 
 	# Thang 11
@@ -161,6 +171,7 @@ Weekday:
 	j end_Nov
 	Nov:
 		addi $s0, $s0, 3
+		j end_weekmonth
 	end_Nov:
 
 	# Thang 12
@@ -169,67 +180,78 @@ Weekday:
 	j end_Dec
 	Dec:
 		addi $s0, $s0, 5
+		j end_weekmonth
 	end_Dec:
+	end_weekmonth:
 
 	# Phep mod tinh thu trong tuan
 	addi $t0, $zero, 7
 	div $s0, $t0
 	mflo $s0
 
+	# Xac dinh thu trong tuan
 	# Sunday
 	addi $t0, $zero, 0
-	beq $s0, $t0, Sun
-	j not_Sun
-	Sun:
+	beq $s0, $t0, WSun
+	j not_WSun
+	WSun:
 		la $v0, str0
-	not_Sun:
+		j end_weekday
+	not_WSun:
 
 	# Monday
 	addi $t0, $zero, 1
-	beq $s0, $t0, Mon
-	j not_Mon
-	Mon:
+	beq $s0, $t0, WMon
+	j not_WMon
+	WMon:
 		la $v0, str1
-	not_Mon:
+		j end_weekday
+	not_WMon:
 
 	# Tuesday
 	addi $t0, $zero, 2
-	beq $s0, $t0, Tues
-	j not_Tues
-	Tues:
+	beq $s0, $t0, WTues
+	j not_WTues
+	WTues:
 		la $v0, str2
-	not_Tues:
+		j end_weekday
+	not_WTues:
 
 	# Wednesday
 	addi $t0, $zero, 3
-	beq $s0, $t0, Wed
-	j not_Wed
-	Wed:
+	beq $s0, $t0, WWed
+	j not_WWed
+	WWed:
 		la $v0, str3
-	not_Wed:
+		j end_weekday
+	not_WWed:
 
 	# Thursday
 	addi $t0, $zero, 4
-	beq $s0, $t0, Thurs
-	j not_Thurs
-	Thurs:
+	beq $s0, $t0, WThurs
+	j not_WThurs
+	WThurs:
 		la $v0, str4
-	not_Thurs:
+		j end_weekday
+	not_WThurs:
 
 	# Friday
 	addi $t0, $zero, 5
-	beq $s0, $t0, Fri
-	j not_Fri
-	Fri:
+	beq $s0, $t0, WFri
+	j not_WFri
+	WFri:
 		la $v0, str5
-	not_Fri:
+		j end_weekday
+	not_WFri:
 
 	# Saturday
 	addi $t0, $zero, 6
-	beq $s0, $t0, Sat
-	j not_Sat
-	Sat:
+	beq $s0, $t0, WSat
+	j not_WSat
+	WSat:
 		la $v0, str6
-	not_Sat:
-
+		j end_weekday
+	not_WSat:
+	
+	end_weekday:
 	jr $ra
