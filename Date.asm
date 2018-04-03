@@ -26,16 +26,16 @@ Date:
 	#Xu ly nam
 	add $t2, $zero, $a3
 	addi $t2, $t2, 9 # Vi tri cuoi chuoi time.
-while_date_positive:
-	slt $t1, $zero, $a2
-	beq $t1, $zero, end_while_date_positive
-	div $a2, $t0 # Tinh phan du khi chia 10.
-	mfhi $t1 # Lay phan du.
-	addi $t1, $t1, 48
-	sb $t1, 0($t2)
-	addi $t2, $t2, -1
-	mflo $a2 # Phan nguyen con lai.
-	j while_date_positive
-end_while_date_positive:	
+	while_date_positive:
+		slt $t1, $zero, $a2
+		beq $t1, $zero, end_while_date_positive
+		div $a2, $t0 # Tinh phan du khi chia 10.
+		mfhi $t1 # Lay phan du.
+		addi $t1, $t1, 48
+		sb $t1, 0($t2)
+		addi $t2, $t2, -1
+		mflo $a2 # Phan nguyen con lai.
+		j while_date_positive
+	end_while_date_positive:	
 	addi $v0, $a3, 0
 	jr $ra
