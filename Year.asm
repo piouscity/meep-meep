@@ -1,7 +1,7 @@
 Year:
 	addi $v0, $zero, 0 # Gan ket qua bang 0.
 	addi $t0, $zero, 10 # So 10.
-	addi $t1, $a0, 6 # Vi tri cua chu so dau tien trong thang.
+	addi $t1, $a0, 6 # Vi tri cua chu so dau tien trong nam.
 	addi $t3, $a0, 10 # Vi tri ket thuc cua nam.
 	Year_iterates_in_year:
 		slt $t2, $t1, $t3 # Chua duyet xong nam.
