@@ -2,7 +2,7 @@ ReadDayOrMonth:
 	# Ham nhap mot ngay va kiem tra xem du lieu co phai la mot so hay khong.
 	# Ket qua tra ve: so nguyen 4 byte luu gia tri ngay hoac -1 neu ngay nhap khong hop le.
 	#######################################################
-	addi $sp, $sp, -8 # Cap phat 12 byte trong stack.
+	addi $sp, $sp, -8 # Cap phat 8 byte trong stack.
 	sw $s0, 0($sp) # Luu cac thanh ghi s.
 	addi $sp, $sp, 4 # Vung nho cua xau nhap vao.
 	addi $a0, $sp, 0 # Nhap xau.
