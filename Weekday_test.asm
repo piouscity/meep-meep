@@ -88,24 +88,17 @@ end_leap_year:
 
 Weekday:
 	# Lay ngay
-	addi $sp, $sp, -8
+	addi $sp, $sp, -4
 	sw $ra, 0($sp)
-	sw $a0, 4($sp)
 	jal Day
 	add $s0, $zero, $v0 # lay gia tri ngay
-	lw $a0, 4($sp)
 	lw $ra, 0($sp)
-	addi $sp, $sp, 8
 
 	# Lay thang
-	addi $sp, $sp, -8
 	sw $ra, 0($sp)
-	sw $a0, 4($sp)
 	jal Month
 	add $s4, $zero, $v0 # lay gia tri thang
-	lw $a0, 4($sp)
 	lw $ra, 0($sp)
-	addi $sp, $sp, 8 
 
 	# Lay 2 so cuoi cua nam
 	addi $t0, $zero, 10 # so 10
@@ -142,12 +135,9 @@ Weekday:
 	add $s0, $s0, $s2
 
 	# Kiem tra nam nhuan
-	addi $sp, $sp, -8
 	sw $ra, 0($sp)
-	sw $a0, 4($sp)
 	jal LeapYear
 	add $s3, $zero, $v0 # lay ket qua
-	lw $a0, 4($sp)
 	lw $ra, 0($sp)
 	addi $sp, $sp, 8
 	
