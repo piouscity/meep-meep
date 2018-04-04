@@ -15,18 +15,17 @@ Weekday:
 	sw $a0, 4($sp)
 	jal Month
 	add $s4, $zero, $v0 # lay gia tri thang
-	add $s0, $s0, $s4 # cong ket qua
 	lw $a0, 4($sp)
 	lw $ra, 0($sp)
-	addi $sp, $sp, 8
+	addi $sp, $sp, 8 
 
 	# Lay 2 so cuoi cua nam
 	addi $t0, $zero, 10 # so 10
-	lb $s1, 9($a0) # lay chu so thu 3 trong nam
+	lb $s1, 8($a0) # lay chu so thu 3 trong nam
 	subi $s1, $s1, 48 # doi ki tu thanh so
 	mult $s1, $t0 # nhan 10
 	mflo $s1 # lay ket qua phep nhan
-	lb $t1, 10($a0) # lay chu so thu 4 trong nam
+	lb $t1, 9($a0) # lay chu so thu 4 trong nam
 	add $s1, $s1, $t1 # cong vao ($s1 la 2 chu so cuoi cua nam)
 	subi $s1, $s1, 48 # doi so thanh ki tu
 	add $s0, $s0, $s1 # cong ket qua
@@ -35,17 +34,17 @@ Weekday:
 	add $t1, $s1, $zero
 	addi $t0, $zero, 4 # so 4
 	div $t1, $t0 # chia 4
-	mfhi $t2 # lay phan nguyen
+	mflo $t2 # lay phan nguyen
 	add $s0, $s0, $t2 # cong ket qua
 
 	# Lay 2 so dau cua nam
 	addi $t0, $zero, 10 # so 10
-	lb $s2, 7($a0) # lay chu so dau tien trong nam
+	lb $s2, 6($a0) # lay chu so dau tien trong nam
 	subi $s2, $s2, 48 # doi ki tu thanh so
 	mult $s2, $t0 # nhan 10
 	mflo $s2 # lay ket qua phep nhan
-	lb $t1, 8($a0) # lay chu so thu 2 trong nam
-	add $s2, $s2, $t1 # cong vao ($s1 la 2 chu so cuoi cua nam)
+	lb $t1, 7($a0) # lay chu so thu 2 trong nam
+	add $s2, $s2, $t1 # cong vao ($s2 la 2 chu so dau cua nam)
 	subi $s2, $s2, 48 # doi so thanh ki tu
 	
 	# Lay the ki
@@ -187,71 +186,71 @@ Weekday:
 	# Phep mod tinh thu trong tuan
 	addi $t0, $zero, 7
 	div $s0, $t0
-	mflo $s0
+	mfhi $s0
 
 	# Xac dinh thu trong tuan
 	# Sunday
 	addi $t0, $zero, 0
-	beq $s0, $t0, WSun
-	j not_WSun
-	WSun:
+	beq $s0, $t0, Saturday
+	j not_Saturday
+	Saturday:
 		la $v0, str0
 		j end_weekday
-	not_WSun:
+	not_Saturday:
 
 	# Monday
 	addi $t0, $zero, 1
-	beq $s0, $t0, WMon
-	j not_WMon
-	WMon:
+	beq $s0, $t0, Sunday
+	j not_Sunday
+	Sunday:
 		la $v0, str1
 		j end_weekday
-	not_WMon:
+	not_Sunday:
 
 	# Tuesday
 	addi $t0, $zero, 2
-	beq $s0, $t0, WTues
-	j not_WTues
-	WTues:
+	beq $s0, $t0, Monday
+	j not_Monday
+	Monday:
 		la $v0, str2
 		j end_weekday
-	not_WTues:
+	not_Monday:
 
 	# Wednesday
 	addi $t0, $zero, 3
-	beq $s0, $t0, WWed
-	j not_WWed
-	WWed:
+	beq $s0, $t0, Tuesday
+	j not_Tuesday
+	Tuesday:
 		la $v0, str3
 		j end_weekday
-	not_WWed:
+	not_Tuesday:
 
 	# Thursday
 	addi $t0, $zero, 4
-	beq $s0, $t0, WThurs
-	j not_WThurs
-	WThurs:
+	beq $s0, $t0, Wednesday
+	j not_Wednesday
+	Wednesday:
 		la $v0, str4
 		j end_weekday
-	not_WThurs:
+	not_Wednesday:
 
 	# Friday
 	addi $t0, $zero, 5
-	beq $s0, $t0, WFri
-	j not_WFri
-	WFri:
+	beq $s0, $t0, Thursday
+	j not_Thursday
+	Thursday:
 		la $v0, str5
 		j end_weekday
-	not_WFri:
+	not_Thursday:
 
 	# Saturday
 	addi $t0, $zero, 6
-	beq $s0, $t0, WSat
-	j not_WSat
-	WSat:
+	beq $s0, $t0, Friday
+	j not_Friday
+	Friday:
 		la $v0, str6
 		j end_weekday
-	not_WSat:
+	not_Friday:
 	
 	end_weekday:
 	jr $ra
