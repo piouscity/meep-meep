@@ -11,3 +11,4 @@ https://github.com/MIPT-ILab/mipt-mips/wiki/MIPS-pseudo-instructions
 - Chú thích tiếng việt không dấu
 - Các thanh ghi save *($s0, $s1, $s2, ....)* nếu có xài thì **phải** backup vào vùng nhớ stack trước khi ghi dữ liệu vô.
 - Các thanh ghi temp *($t0, $t1, $t2, ....)* khi xài thì **không cần** backup, cứ thế mà ghi dữ liệu vô thôi.
+- Trong main: ngày tháng năm được lưu vào $s0, $s1, $s2. Địa chỉ của chuỗi time được lưu trong $s3.
