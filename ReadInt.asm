@@ -2,7 +2,15 @@ ReadInt:
 	# Ham nhap mot so nguyen voi toi da mot luong ki tu cho truoc.
 	# Tham so: $a0 luu so ki tu toi da.
 	# Ket qua tra ve: so nguyen 4 byte luu gia tri ngay hoac -1 neu ngay nhap khong hop le.
-	#######################################################
+	#__________________________________________________________________________
+	
+	# Backup
+	addi $sp, $sp, -12 # Phan nho cho cac thanh ghi s.
+	sw $s0, 0($sp) # Luu cac thanh ghi s.
+	sw $s1, 4($sp)
+	sw $s2, 8($sp)
+	
+	# Process
 	addi $s0, $a0, 1 # So ki tu toi da, chua ki tu \0 o cuoi.
 	addi $t0, $zero, 4 # So 4.
 	div $s0, $t0 # Lay so ki tu chia 4.
@@ -13,11 +21,6 @@ ReadInt:
 	dont_add_four:
 	# Khai bao bo nho stack.
 	sub $sp, $sp, $s1 # Phan nho cho xau nhap.
-	addi $sp, $sp, -12 # Phan nho cho cac thanh ghi s.
-	sw $s0, 0($sp) # Luu cac thanh ghi s.
-	sw $s1, 4($sp)
-	sw $s2, 8($sp)
-	addi $sp, $sp, 12 # Vung nho cua xau nhap vao.
 	addi $a0, $sp, 0 # Nhap xau.
 	addi $a1, $s0, 0 # So ki tu toi da can nhap.
 	addi $v0, $zero, 8
@@ -54,10 +57,9 @@ ReadInt:
 	invalid_int_entered:
 	addi $v0, $zero, -1 # Ngay nhap khong hop le.	
 end_readint:
-	addi $sp, $sp, -12 # Vi tri nho thanh ghi ra.
+	add $sp, $sp, $s1 # Giai phong bo nho chua xau
 	lw $s0, 0($sp) # Lay lai cac thanh ghi s.
 	lw $s1, 4($sp)
 	lw $s2, 8($sp)
-	addi $sp, $sp, 12 # Giai phong bo nho.
-	add $sp, $sp, $s1 # Giai phong bo nho.
+	addi $sp, $sp, 12 # Giai phong bo nho chua thanh ghi
 	jr $ra
