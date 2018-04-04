@@ -1,4 +1,4 @@
-ReadDay:
+ReadDayOrMonth:
 	# Ham nhap mot ngay va kiem tra xem du lieu co phai la mot so hay khong.
 	# Ket qua tra ve: so nguyen 4 byte luu gia tri ngay hoac -1 neu ngay nhap khong hop le.
 	#######################################################
@@ -30,7 +30,7 @@ ReadDay:
 	# Kiem tra ki tu dau tien co phai newline hay khong.
 	lb $s0, 1($sp) # Lay ki tu thu hai cua xau.
 	addi $s0, $s0, -10 # Tru di 10.
-	beq $s0, $zero, end_readday # Ki tu thu hai la ki tu xuong dong thi ngay nhap da hop le.
+	beq $s0, $zero, end_readdayormonth # Ki tu thu hai la ki tu xuong dong thi ngay nhap da hop le.
 	addi $s0, $s0, 10 # Khoi phuc lai gia tri cu.
 	# Kiem tra ki tu thu hai co phai chu so hay khong.
 	slti $t0, $s0, 48 # Kiem tra s0 < '0'
@@ -44,11 +44,11 @@ ReadDay:
 	add $v0, $v0, $s0 # Cong chu so thu hai vo ket qua.
 	addi $v0, $v0, -48	
 
-	j end_readday # Ngay duoc nhap da hop le.
+	j end_readdayormonth # Ngay duoc nhap da hop le.
 	######################################
 	invalid_day_entered:
 	addi $v0, $zero, -1 # Ngay nhap khong hop le.	
-end_readday:
+end_readdayormonth:
 	addi $sp, $sp, -4 # Vi tri nho thanh ghi ra.
 	lw $s0, 0($sp) # Lay lai cac thanh ghi s.
 	addi $sp, $sp, 8 # Giai phong bo nho.
