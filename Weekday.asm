@@ -51,7 +51,7 @@ Weekday:
 	jal LeapYear
 	add $s3, $zero, $v0 # lay ket qua
 	lw $ra, 0($sp)
-	addi $sp, $sp, 8
+	addi $sp, $sp, 4
 	
 	# Tinh he so m
 	# Thang 1
