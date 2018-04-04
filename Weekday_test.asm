@@ -110,11 +110,11 @@ Weekday:
 
 	# Lay 2 so cuoi cua nam
 	addi $t0, $zero, 10 # so 10
-	lb $s1, 7($a0) # lay chu so thu 3 trong nam
+	lb $s1, 9($a0) # lay chu so thu 3 trong nam
 	subi $s1, $s1, 48 # doi ki tu thanh so
 	mult $s1, $t0 # nhan 10
 	mflo $s1 # lay ket qua phep nhan
-	lb $t1, 1($a0) # lay chu so thu 4 trong nam
+	lb $t1, 10($a0) # lay chu so thu 4 trong nam
 	add $s1, $s1, $t1 # cong vao ($s1 la 2 chu so cuoi cua nam)
 	subi $s1, $s1, 48 # doi so thanh ki tu
 	add $s0, $s0, $s1 # cong ket qua
@@ -128,12 +128,12 @@ Weekday:
 
 	# Lay 2 so dau cua nam
 	addi $t0, $zero, 10 # so 10
-	lb $s2, 7($a0) # lay chu so thu 3 trong nam
+	lb $s2, 7($a0) # lay chu so dau tien trong nam
 	subi $s2, $s2, 48 # doi ki tu thanh so
 	mult $s2, $t0 # nhan 10
 	mflo $s2 # lay ket qua phep nhan
-	lb $t1, 1($a0) # lay chu so thu 4 trong nam
-	add $s2, $s2, $t1 # cong vao ($s1 la 2 chu so cuoi cua nam)
+	lb $t1, 8($a0) # lay chu so thu 2 trong nam
+	add $s2, $s2, $t1 # cong vao ($s1 la 2 chu so dau cua nam)
 	subi $s2, $s2, 48 # doi so thanh ki tu
 	
 	# Lay the ki
