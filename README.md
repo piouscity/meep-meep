@@ -15,4 +15,4 @@ https://github.com/MIPT-ILab/mipt-mips/wiki/MIPS-pseudo-instructions
 - Trong hàm: 
   + Nếu có sử dụng $s thì phải backup.
   + Nếu có gọi hàm khác thì phải backup $a nếu như dữ liệu trong $a còn xài lại.
-  + Luôn backup $ra
+  + Nếu có gọi hàm khác thì backup $ra
