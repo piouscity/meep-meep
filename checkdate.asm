@@ -1,9 +1,10 @@
 
-# Kiem tra tinh hop le cua Date
+# Kiem tra tinh hop le cua Date.
 # Tham so :
 #	a0: ngay
 #	a1: thang
 #	a2: nam
+# Ham dam bao rang cac tham so khong bi thay doi.
 # Tra ve : 
 #	v0: 1 (true) hoac 0 (false)
 checkdate:
