@@ -12,6 +12,8 @@ checkdate:
 	addi $t9, $0, 9999
 	slt $t0, $t9, $a2
 	bne $t0, $0, checkdate_false	# if (year > 9999) return false
+	slti $t0, $a2, 1900
+	bne $t0, $0, checkdate_false	# if (year < 1900) return false
 
 	addi $t2, $0, 12
 	slt $t0, $t2, $a1
