@@ -1,6 +1,7 @@
 .data
 	time0: .space 16
 	time1: .space 16
+	time_ans: .space 8
 	header: .asciiz "-----Hay chon 1 trong cac thao tac duoi day------\n"
 	option1_str: .asciiz "1. Xuat chuoi time theo dinh dang DD/MM/YYYY\n"
 	option2_str: .asciiz "2. Chuyen doi chuoi TIME thanh mot trong cac dinh dang sau:\n\tA. MM/DD/YYYY\n\tB. Month DD, YYYY\n\tC. DD Month, YYYY\n"
@@ -10,7 +11,16 @@
 	option6_str: .asciiz "6. Cho biet 2 nam nhuan gan nhat voi nam trong chuoi time\n"
 	option_str: .asciiz "Lua chon: "
 	result_str: .asciiz "Ket qua: "
+	leap_str: .asciiz "Nam nhuan"
+	non_leap_str: .asciiz "Nam khong nhuan"
 	time_format_str: .asciiz "Nhap kieu chuyen doi (A, B, C): "
+	str0: .asciiz "Sat"
+	str1: .asciiz "Sun"
+	str2: .asciiz "Mon"
+	str3: .asciiz "Tues"	
+	str4: .asciiz "Wed"
+	str5: .asciiz "Thurs"
+	str6: .asciiz "Fri"
 	
 .text
 main:
@@ -48,29 +58,36 @@ main:
 	addi $a0, $0, 10
 	syscall
 	
-	# Read user's option
-	la $a0, option_str
-	addi $v0, $0, 4
-	syscall
+	while_user_option_is_invalid:
+		# Read user's option
+		la $a0, option_str
+		addi $v0, $0, 4
+		syscall
 
-	addi $a0, $0, 1
-	jal ReadInt	# $v0: user's option
+		addi $a0, $0, 1
+		jal ReadInt	# $v0: user's option
 
-	# process user's option
-	addi $t0, $0, 1
-	beq $t0, $v0, Option1
-	addi $t0, $t0, 1
-	beq $t0, $v0, Option2
-	addi $t0, $t0, 1
-	beq $t0, $v0, Option3
-	addi $t0, $t0, 1
-	beq $t0, $v0, Option4
-	addi $t0, $t0, 1
-	beq $t0, $v0, Option5
-	addi $t0, $t0, 1
-	beq $t0, $v0, Option6
+		addi $s0, $v0, 0 # Luu lai v0
+		addi $a0, $zero, 10 # Xuat xuong hang.
+		addi $v0, $zero, 11
+		syscall
+
+		addi $v0, $s0, 0 # Tra lai v0
+		# process user's option
+		addi $t0, $0, 1
+		beq $t0, $v0, Option1
+		addi $t0, $t0, 1
+		beq $t0, $v0, Option2
+		addi $t0, $t0, 1
+		beq $t0, $v0, Option3
+		addi $t0, $t0, 1
+		beq $t0, $v0, Option4
+		addi $t0, $t0, 1
+		beq $t0, $v0, Option5
+		addi $t0, $t0, 1
+		beq $t0, $v0, Option6
 	
-	j main_exit	# $v0 is not from 1 to 6, exit
+		j while_user_option_is_invalid # Khong hop le thi nhap lai.
 
 	# process every option
 	Option1:
@@ -91,7 +108,7 @@ main:
 		addi $a0, $zero, 10 # Xuat xuong dong.
 		addi $v0, $zero, 11
 		syscall
-		addi $a0, $s3, 0 # Dat tham so goi ham convert.
+		la $a0, time0 # Con tro den chuoi time.
 		addi $a1, $s0, 0
 		jal convert
 		addi $s0, $v0, 0 # Luu ket qua.
@@ -103,18 +120,97 @@ main:
 		syscall
 		j main_exit
 	Option3:
+		addi $v0, $0, 4
+		la $a0, result_str
+		syscall
+		la $a0, time0
+		jal Weekday
+
+		# Xuat ket qua
+		addi $a0, $v0, 0
+		addi $v0, $zero, 4
+		syscall
+
+		j main_exit
+	Option4:		
+		la $a0, time0
+		jal LeapYear # Kiem tra nam nhuan.
+
+
+		beq $v0, $zero, print_non_leap_year # Neu khong la nam nhuan thi jump.
+		la $a0, leap_str # Xuat nam nhuan.
+		j end_option4 # Nhay toi cuoi option4.
+
+		print_non_leap_year:
+		la $a0,	non_leap_str # Xuat khong nhuan.
+	end_option4:
+		addi $v0, $zero, 4 # Xuat ket qua.
+		syscall
+		j main_exit # Ket thuc chuong trinh.
+	Option5:
+		la $a0, time1
+		jal readdate
 		
+		la $a0, time0
+		la $a1, time1
+		jal GetTime
+		add $s0, $v0, $0
+		
+		addi $v0, $0, 4
+		la $a0, result_str
+		syscall
+		
+		add $a0, $s0, $0
+		addi $v0, $0, 1
+		syscall
+		j main_exit
+		
+	Option6:
+		addi $v0, $zero, 4 # Xuat ket qua.
+		la $a0, result_str
+		syscall
+		la $a0, time0 # Dat tham so la chuoi time.
+		jal Day # GOi ham day.
+		addi $s0, $v0, 0
+		jal Month
+		addi $s1, $v0, 0
+		jal Year # GOi ham year.
+		addi $s2, $v0, 0 
+		la $s3, time0
+		addi $s4, $zero, 0 # i = 0.
+		while_not_enough_leep_year:
+			slti $t0, $s4, 2 # i < 2.
+			beq $t0, $zero, end_while_not_enough_leep_year # t0 = false <=> i >= 2
+			addi $s2, $s2, 1 # Tang nam len.
+			addi $a0, $s0, 0 # Khoi tao ngay thang nam moi.
+			addi $a1, $s1, 0
+			addi $a2, $s2, 0
+			addi $a3, $s3, 0
+			jal Date # Tao chuoi time tu ngay thang nam.
+			addi $a0, $v0, 0 # Dat tham so la chuoi time.
+			jal LeapYear # Goi ham kiem tra nam nhuan.
+			add $s4, $s4, $v0 # Neu nam nhuan thi cong 1, nam khong nhuan thi cong 0.
+			beq $v0, $zero, while_not_enough_leep_year # Nam khong nhuan thi continue.
 
-	j main_exit
-
+			# Nam nhuan thi xuat ket qua.
+			addi $a0, $s2, 0 # Xuat nam.
+			addi $v0, $zero, 1
+			syscall
+			addi $a0, $zero, 32 # Xuat dau cach.
+			addi $v0, $zero, 11
+			syscall
+			j while_not_enough_leep_year
+		end_while_not_enough_leep_year:
+		j main_exit # Ket thuc chuong trinh
+		
 # Ham yeu cau nguoi dung nhap ngay, thang, nam; tra ve chuoi co dinh dang "DD/MM/YYYY"
+# Nguoi dung phai nhap toi khi dung thi thoi.
 # Tham so:
 #	a0: Dia chi cua vung nho luu chuoi ket qua
 # Ham se thay doi vung nho $a0 tro toi.
 # $a0 co the bi thay doi.
 # Tra ve:
-#	v0: 1 (successful) hoac 0 (error)
-#	v1: Dia chi vung nho ket qua (neu successful)
+#	v0: Dia chi vung nho ket qua 
 readdate:
 	# backup
 	addi $sp, $sp, -20
@@ -129,6 +225,8 @@ readdate:
 	addi $sp, $sp, -12
 
 	# print "Nhap ngay:"
+	readdate_begin_read:
+
 	lui $t0, 0x7061
 	ori $t0, $t0, 0x684e
 	sw $t0, 0($sp)
@@ -216,9 +314,13 @@ readdate:
 		addi $v0, $0, 4
 		add $a0, $sp, $0
 		syscall
-		# result
-		add $v0, $0, $0
-		j readdate_restore
+
+		addi $a0, $0, 10
+		addi $v0, $0, 11
+		syscall	# new line
+
+		# read again
+		j readdate_begin_read	
 
 	readdate_write:
 		# Cac thanh ghi a0, a1, a2 van luu ngay, thang, nam
@@ -229,8 +331,7 @@ readdate:
 		addi $v0, $0, 11
 		syscall	# new line
 
-		addi $v0, $0, 1
-		add $v1, $s3, $0
+		add $v0, $s3, $0
 
 	readdate_restore:
 		# restore
@@ -525,6 +626,571 @@ Year:
 		addi $t1, $t1, 1 # Tang vi tri chu so trong nam.
 		j Year_iterates_in_year
 	end_iterates_in_year:
+	jr $ra
+
+# Ham chuyen doi dinh dang chuoi TIME
+# Tham so:
+#	$a0: chuoi TIME
+#	$a1: kieu dinh dang ('A', 'B' hoac 'C')
+# Ham se thay doi gia tri cua vung nho ma $a0 tro toi.
+# Cac tham so $a0, $a1 co the bi thay doi.
+# Tra ve:
+#	$v0: dia chi vung nho chua chuoi TIME da dinh dang.
+convert:
+	addi $t0, $0, 65
+	bne $t0, $a1, convert_type_not_a
+	# swap 0 and 3
+	lb $t0, 0($a0)
+	lb $t1, 3($a0)
+	sb $t1, 0($a0)
+	sb $t0, 3($a0)
+	# swap 1 and 4
+	lb $t0, 1($a0)
+	lb $t1, 4($a0)
+	sb $t1, 1($a0)
+	sb $t0, 4($a0)
+	j convert_return
+
+	convert_type_not_a:
+	# backup if type not A
+		addi $sp, $sp, -8
+		sw $s0, 4($sp)
+		sw $ra, 0($sp)
+	
+		add $s0, $a0, $0
+	# process if type not A
+		sb $0, 12($s0)		# add '\0' to the end
+		# t2 : MM	
+		lb $t2, 3($s0)		
+		addi $t2, $t2, -48
+		addi $t0, $0, 10
+		mult $t2, $t0
+		mflo $t2
+		lb $t0, 4($s0)
+		addi $t0, $t0, -48
+		add $t2, $t2, $t0
+		# insert (, YYYY)
+		lb $t0, 9($s0)
+		sb $t0, 11($s0)
+		lb $t0, 8($s0)
+		sb $t0, 10($s0)
+		lb $t0, 7($s0)
+		sb $t0, 9($s0)
+		lb $t0, 6($s0)
+		sb $t0, 8($s0)
+		addi $t0, $0, 0x2c 	# comma and space
+		sb $t0, 6($s0)
+		addi $t0, $0, 0x20
+		sb $t0, 7($s0)
+
+		addi $t0, $0, 66	
+		beq $t0, $a1, convert_type_b
+
+		# type_c:
+		addi $t0, $0, 32	# space
+		sb $t0, 2($s0)
+		
+		addi $a1, $s0, 3
+		add $a0, $t2, $0	
+		jal mm_to_month	
+		
+		j convert_restore
+
+		convert_type_b:
+			lb $t0, 0($s0)	# DD
+			sb $t0, 4($s0)
+			lb $t0, 1($s0)
+			sb $t0, 5($s0)
+
+			addi $t0, $0, 32
+			sb $t0, 3($s0)
+			
+			add $a1, $s0, $0
+			add $a0, $t2, $0
+			jal mm_to_month
+
+	# restore if type not A and return
+	convert_restore:
+		add $v0, $s0, $0 	
+		lw $s0, 4($sp)
+		lw $ra, 0($sp)
+		addi $sp, $sp, 8
+		jr $ra
+# return
+	convert_return:
+		add $v0, $a0, $0
+		jr $ra
+
+# Ham chuyen MM sang Month ( vd: 01 --> "JAN" )
+# Tham so:
+#	$a0: so thang (vd: 1)
+#	$a1: dia chi chuoi can ghi
+# Ham dam bao se khong thay doi $a0 va $a1
+mm_to_month:
+	addi $t0, $0, 1
+	beq $a0, $t0, mm_to_month_1
+	addi $t0, $t0, 1
+	beq $a0, $t0, mm_to_month_2
+	addi $t0, $t0, 1
+	beq $a0, $t0, mm_to_month_3
+	addi $t0, $t0, 1
+	beq $a0, $t0, mm_to_month_4
+	addi $t0, $t0, 1
+	beq $a0, $t0, mm_to_month_5
+	addi $t0, $t0, 1
+	beq $a0, $t0, mm_to_month_6
+	addi $t0, $t0, 1
+	beq $a0, $t0, mm_to_month_7
+	addi $t0, $t0, 1
+	beq $a0, $t0, mm_to_month_8
+	addi $t0, $t0, 1
+	beq $a0, $t0, mm_to_month_9
+	addi $t0, $t0, 1
+	beq $a0, $t0, mm_to_month_10
+	addi $t0, $t0, 1
+	beq $a0, $t0, mm_to_month_11
+	# mm_to_month_12:
+	lui $t1, 0x2043
+	ori $t1, 0x4544
+	j mm_to_month_return
+	mm_to_month_1:
+		lui $t1, 0x204e
+		ori $t1, 0x414a
+		j mm_to_month_return
+	mm_to_month_2:
+		lui $t1, 0x2042
+		ori $t1, 0x4546
+		j mm_to_month_return
+	mm_to_month_3:
+		lui $t1, 0x2052
+		ori $t1, 0x414d
+		j mm_to_month_return
+	mm_to_month_4:
+		lui $t1, 0x2052
+		ori $t1, 0x5041
+		j mm_to_month_return
+	mm_to_month_5:
+		lui $t1, 0x2059
+		ori $t1, 0x414d
+		j mm_to_month_return
+	mm_to_month_6:
+		lui $t1, 0x204e
+		ori $t1, 0x554a
+		j mm_to_month_return
+	mm_to_month_7:
+		lui $t1, 0x204c
+		ori $t1, 0x554a
+		j mm_to_month_return
+	mm_to_month_8:
+		lui $t1, 0x2047
+		ori $t1, 0x5541
+		j mm_to_month_return
+	mm_to_month_9:
+		lui $t1, 0x2050
+		ori $t1, 0x4553
+		j mm_to_month_return
+	mm_to_month_10:
+		lui $t1, 0x2054
+		ori $t1, 0x434f
+		j mm_to_month_return
+	mm_to_month_11:
+		lui $t1, 0x2056
+		ori $t1, 0x4f4e
+	mm_to_month_return:
+		sb $t1, 0($a1)
+		srl $t1, $t1, 8
+		sb $t1, 1($a1)
+		srl $t1, $t1, 8
+		sb $t1, 2($a1)
+		jr $ra	
+
+# Ham tra ve thu trong tuan
+# Tham so $a0: *char chuoi TIME (duoc luu trong $s0)
+# Tham so $a0 khong bi thay doi
+Weekday:
+	# $s0: chuoi TIME
+	# $s1: ket qua can duoc tinh (0 ... 6)
+	# $s2: gia tri thang
+	# $s3: kiem tra nam nhuan
+	# $t0: hang so
+	
+	addi $sp, $sp, -20
+	sw $ra, 0($sp)
+	sw $s0, 4($sp)
+	sw $s1, 8($sp)
+	sw $s2, 12($sp)
+	sw $s3, 16($sp)
+	add $s0, $a0, $zero
+
+	# Lay ngay
+	jal Day
+	add $s1, $zero, $v0 # lay gia tri ngay
+
+	# Lay thang
+	jal Month
+	add $s2, $zero, $v0 # lay gia tri thang
+
+	# $t1: gia tri nam
+	addi $t0, $zero, 10 # so 10
+	lb $t1, 6($s0) # lay chu so dau tien trong nam
+	subi $t1, $t1, 48 # doi ki tu thanh so
+	mult $t1, $t0 # nhan 10
+	mflo $t1 # lay ket qua phep nhan
+	lb $t2, 7($s0) # lay chu so thu 2 trong nam
+	add $t1, $t1, $t2 # cong vao
+	subi $t1, $t1, 48 # doi so thanh ki tu
+	mult $t1, $t0
+	mflo $t1
+	lb $t2, 8($s0) # lay chu so thu 3 trong nam
+	add $t1, $t1, $t2 # cong vao
+	subi $t1, $t1, 48 # doi ki tu thanh so
+	mult $t1, $t0 # nhan 10
+	mflo $t1 # lay ket qua phep nhan
+	lb $t2, 9($s0) # lay chu so thu 4 trong nam
+	add $t1, $t1, $t2 # cong vao ($t1 la 2 chu so cuoi cua nam)
+	subi $t1, $t1, 48 # doi so thanh ki tu
+	add $s1, $s1, $t1 # cong ket qua
+
+	# nam chia 4
+	addi $t0, $zero, 4 # so 4
+	div $t1, $t0 # chia 4
+	mflo $t2 # lay phan nguyen
+	add $s1, $s1, $t2 # cong ket qua
+
+	# nam chia 100
+	addi $t0, $zero, 100 # so 100
+	div $t1, $t0 # chia 100
+	mflo $t2 # lay phan nguyen
+	sub $s1, $s1, $t2 # cong ket qua
+
+	# nam chia 400
+	addi $t0, $zero, 400
+	div $t1, $t0
+	mflo $t2
+	add $s1, $s1, $t2
+
+	# Kiem tra nam nhuan
+	jal LeapYear
+	add $s3, $zero, $v0 # lay ket qua
+	
+	# Tinh he so m
+	# Thang 1
+	addi $t0, $zero, 1
+	beq $s2, $t0, January
+	j end_January
+	January:
+		beq $s3, $zero, not_leap_1
+		addi $s1, $s1, 6
+		j end_not_leap_1
+		not_leap_1:
+			addi $s1, $s1, 0
+		end_not_leap_1:
+		j end_weekmonth
+	end_January:
+
+	# Thang 2
+	addi $t0, $zero, 2
+	beq $s2, $t0, February
+	j end_February
+	February:
+		beq $s3, $zero, not_leap_2
+		addi $s1, $s1, 2
+		j end_not_leap_2
+		not_leap_2:
+			addi $s1, $s1, 3
+		end_not_leap_2:
+		j end_weekmonth
+	end_February:
+
+	# Thang 3
+	addi $t0, $zero, 3
+	beq $s2, $t0, March
+	j end_March
+	March:
+		addi $s1, $s1, 3
+		j end_weekmonth
+	end_March:
+
+	# Thang 4
+	addi $t0, $zero, 4
+	beq $s2, $t0, April
+	j end_April
+	April:
+		addi $s1, $s1, 6
+		j end_weekmonth
+	end_April:
+
+	# Thang 5
+	addi $t0, $zero, 5
+	beq $s2, $t0, May
+	j end_May
+	May:
+		addi $s1, $s1, 1
+		j end_weekmonth
+	end_May:
+
+	# Thang 6
+	addi $t0, $zero, 6
+	beq $s2, $t0, June
+	j end_June
+	June:
+		addi $s1, $s1, 4
+		j end_weekmonth
+	end_June:
+
+	# Thang 7
+	addi $t0, $zero, 7
+	beq $s2, $t0, July
+	j end_July
+	July:
+		addi $s1, $s1, 6
+		j end_weekmonth
+	end_July:
+
+	# Thang 8
+	addi $t0, $zero, 8
+	beq $s2, $t0, August
+	j end_August
+	August:
+		addi $s1, $s1, 2
+		j end_weekmonth
+	end_August:
+
+	# Thang 9
+	addi $t0, $zero, 9
+	beq $s2, $t0, Sep
+	j end_Sep
+	Sep:
+		addi $s1, $s1, 5
+		j end_weekmonth
+	end_Sep:
+	
+	# Thang 10
+	addi $t0, $zero, 10
+	beq $s2, $t0, Oct
+	j end_Oct
+	Oct:
+		addi $s1, $s1, 0
+		j end_weekmonth
+	end_Oct:
+
+	# Thang 11
+	addi $t0, $zero, 11
+	beq $s2, $t0, Nov
+	j end_Nov
+	Nov:
+		addi $s1, $s1, 3
+		j end_weekmonth
+	end_Nov:
+
+	# Thang 12
+	addi $t0, $zero, 12
+	beq $s2, $t0, Dec
+	j end_Dec
+	Dec:
+		addi $s1, $s1, 5
+		j end_weekmonth
+	end_Dec:
+	end_weekmonth:
+
+	# Phep mod tinh thu trong tuan
+	addi $t0, $zero, 7
+	div $s1, $t0
+	mfhi $s1
+
+	# Xac dinh thu trong tuan
+	addi $t0, $zero, 0
+	beq $t0, $s1, Saturday
+	addi $t0, $zero, 1
+	beq $t0, $s1, Sunday
+	addi $t0, $zero, 2
+	beq $t0, $s1, Monday
+	addi $t0, $zero, 3
+	beq $t0, $s1, Tuesday
+	addi $t0, $zero, 4
+	beq $t0, $s1, Wednesday
+	addi $t0, $zero, 5
+	beq $t0, $s1, Thursday
+	addi $t0, $zero, 6
+	beq $t0, $s1, Friday
+
+	Saturday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x0074
+		ori $t1, 0x6153
+		j end_weekday
+
+	Sunday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x006e
+		ori $t1, 0x7553
+		j end_weekday
+
+	Monday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x006e
+		ori $t1, 0x6f4d
+		j end_weekday
+
+	Tuesday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x7365
+		ori $t1, 0x7554
+		j end_weekday
+
+	Wednesday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x0064
+		ori $t1, 0x6557
+		j end_weekday
+
+	Thursday:
+		lui $t0, 0x0000
+		ori $t0, 0x0073
+		lui $t1, 0x7275
+		ori $t1, 0x6854
+		j end_weekday
+
+	Friday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x0069
+		ori $t1, 0x7246
+		j end_weekday		
+	end_weekday:
+		la $v0, time_ans
+		sb $t1, 0($v0)
+		srl $t1, $t1, 8
+		sb $t1, 1($v0)
+		srl $t1, $t1, 8
+		sb $t1, 2($v0)
+		srl $t1, $t1, 8
+		sb $t1, 3($v0)
+		sb $t0, 4($v0)
+		srl $t0, $t0, 8
+		sb $t0, 5($v0)
+	
+	lw $ra, 0($sp)
+	lw $s0, 4($sp)
+	lw $s1, 8($sp)
+	lw $s2, 12($sp)
+	lw $s3, 16($sp)
+	jr $ra
+
+# Ham gettime.
+# Cac tham so:
+#	a0: char * chuoi time1.
+#	a1: char * chuoi time2.
+# Cac thanh ghi a bi thay doi: a0.
+GetTime:
+	addi $sp, $sp, -36 # Cap phat bo nho.
+	sw $ra, 0($sp) # Luu ra.
+	sw $s0, 4($sp) # Luu lai cac thanh ghi s.
+	sw $s1, 8($sp)
+	sw $s2, 12($sp)
+	sw $s3, 16($sp)
+	sw $s4, 20($sp)
+	sw $s5, 24($sp)
+	sw $s6, 28($sp)
+	sw $s7, 32($sp)
+
+	#_________________________________________________
+	# Trich xuat ngay thang nam cua time 1.
+	jal Day
+	addi $s0, $v0, 0 # Luu ngay cua time 1.
+	jal Month
+	addi $s1, $v0, 0 # Luu thang cua time 1.
+	jal Year
+	addi $s2, $v0, 0 # Luu nam cua time 1.
+
+	#Trich xuat ngay thang nam cua time 2.
+	addi $a0, $a1, 0 # Dat tham so = time 2 de goi ham.
+	jal Day
+	addi $s3, $v0, 0 # Luu ngay cua time 2.
+	jal Month
+	addi $s4, $v0, 0 # Luu thang cua time 2.
+	jal Year
+	addi $s5, $v0, 0 # Luu nam cua time 2.	
+
+
+	#________________________________________________
+	# Dat x = nam1 * 1e4 + thang1 * 1e2 + ngay1.
+	#	y = nam2 * 1e4 + thang2 * 1e2 + ngay2.
+	addi $t0, $zero, 100 # So 100.
+
+	# Tinh x.
+	addi $s6, $s2, 0 # Lay nam cua time 1.
+	mult $s6, $t0 # Nhan nam voi 100.
+	mflo $s6 # Lay ket qua phep nhan.  
+	add $s6, $s6, $s1 # Cong voi thang cua time 1.
+	mult $s6, $t0 # Nhan voi 100.
+	mflo $s6 # Lay ket qua phep nhan.
+	add $s6, $s6, $s0 # Cong voi ngay cua time 1.
+
+	# Tinh y.
+	addi $s7, $s5, 0 # Lay nam cua time 2.
+	mult $s7, $t0 # Nhan nam voi 100.
+	mflo $s7 # Lay ket qua phep nhan.  
+	add $s7, $s7, $s4 # Cong voi thang cua time 2.
+	mult $s7, $t0 # Nhan voi 100.
+	mflo $s7 # Lay ket qua phep nhan.
+	add $s7, $s7, $s3 # Cong voi ngay cua time 2.
+
+	#______________________________________________
+	# Kiem tra time1 >= time2.
+	slt $t0, $s6, $s7 # Kiem tra nam cua time 1 co be hon nam cua time 2.
+	beq $t0, $zero, dont_swap_time # Neu s6 >= s7 (t0 false) thi khong can phai swap 2 time.
+
+		addi $t0, $s0, 0 # Doi ngay.
+		addi $s0, $s3, 0	
+		addi $s3, $t0, 0
+
+		addi $t0, $s1, 0 # Doi thang.
+		addi $s1, $s4, 0	
+		addi $s4, $t0, 0
+
+		addi $t0, $s2, 0 # Doi nam.
+		addi $s2, $s5, 0	
+		addi $s5, $t0, 0
+
+	dont_swap_time:
+		
+		sub $v0, $s2, $s5 # Hieu 2 nam.
+		addi $t0, $zero, 100 # So 100.
+		#____________________
+		# Tinh thang1 * 100 + ngay1.
+		addi $s6, $s1, 0 # Lay thang cua time 1.
+		mult $s6, $t0 # Nhan 100.
+		mflo $s6 # Lay ket qua phep nhan.
+		add $s6, $s6, $s0 # Cong voi ngay cua time 1.
+		
+		# Tinh thang2 * 100 + ngay2.
+		addi $s7, $s4, 0 # Lay thang cua time 2
+		mult $s7, $t0 # Nhan 100.
+		mflo $s7 # Lay ket qua phep nhan.
+		add $s7, $s7, $s3 # Cong voi ngay cua time 2.
+		#_______________________
+		# Tru ket qua neu chua du ngay
+		slt $t0, $s6, $s7 # Kiem tra t1 < t2.
+		beq $t0, $zero, end_get_time # Neu s6 >= s7 thi khong tru ket qua ma tra ve luon.
+		addi $v0, $v0, -1
+
+	end_get_time:
+	lw $ra, 0($sp) # Lay ra.
+	lw $s0, 4($sp) # Lay lai cac thanh ghi s.
+	lw $s1, 8($sp)
+	lw $s2, 12($sp)
+	lw $s3, 16($sp)
+	lw $s4, 20($sp)
+	lw $s5, 24($sp)
+	lw $s6, 28($sp)
+	lw $s7, 32($sp)
+	addi $sp, $sp, 36 # Giai phong bo nho.
 	jr $ra
 
 main_exit:
