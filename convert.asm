@@ -1,7 +1,11 @@
-# Ham chuyen doi dinh dang
+# Ham chuyen doi dinh dang chuoi TIME
 # Tham so:
 #	$a0: chuoi TIME
 #	$a1: kieu dinh dang ('A', 'B' hoac 'C')
+# Ham se thay doi gia tri cua vung nho ma $a0 tro toi.
+# Cac tham so $a0, $a1 co the bi thay doi.
+# Tra ve:
+#	$v0: dia chi vung nho chua chuoi TIME da dinh dang.
 convert:
 	addi $t0, $0, 65
 	bne $t0, $a1, convert_type_not_a
@@ -19,67 +23,69 @@ convert:
 
 	convert_type_not_a:
 	# backup if type not A
-		addi $sp, $sp, -12
-		sw $a1, 8($sp)
-		sw $a0, 4($sp)
+		addi $sp, $sp, -8
+		sw $s0, 4($sp)
 		sw $ra, 0($sp)
+	
+		add $s0, $a0, $0
 	# process if type not A
-		sb $0, 12($a0)		# add '\0' to the end
+		sb $0, 12($s0)		# add '\0' to the end
 		# t2 : MM	
-		lb $t2, 3($a0)		
+		lb $t2, 3($s0)		
 		addi $t2, $t2, -48
 		addi $t0, $0, 10
 		mult $t2, $t0
 		mflo $t2
-		lb $t0, 4($a0)
+		lb $t0, 4($s0)
 		addi $t0, $t0, -48
 		add $t2, $t2, $t0
 		# insert (, YYYY)
-		lb $t0, 9($a0)
-		sb $t0, 11($a0)
-		lb $t0, 8($a0)
-		sb $t0, 10($a0)
-		lb $t0, 7($a0)
-		sb $t0, 9($a0)
-		lb $t0, 6($a0)
-		sb $t0, 8($a0)
+		lb $t0, 9($s0)
+		sb $t0, 11($s0)
+		lb $t0, 8($s0)
+		sb $t0, 10($s0)
+		lb $t0, 7($s0)
+		sb $t0, 9($s0)
+		lb $t0, 6($s0)
+		sb $t0, 8($s0)
 		addi $t0, $0, 0x2c 	# comma and space
-		sb $t0, 6($a0)
+		sb $t0, 6($s0)
 		addi $t0, $0, 0x20
-		sb $t0, 7($a0)
+		sb $t0, 7($s0)
 
 		addi $t0, $0, 66	
 		beq $t0, $a1, convert_type_b
 
 		# type_c:
 		addi $t0, $0, 32	# space
-		sb $t0, 2($a0)
+		sb $t0, 2($s0)
 		
-		addi $a1, $a0, 3
+		addi $a1, $s0, 3
 		add $a0, $t2, $0	
 		jal mm_to_month	
 		
 		j convert_restore
 
 		convert_type_b:
-			lb $t0, 0($a0)	# DD
-			sb $t0, 4($a0)
-			lb $t0, 1($a0)
-			sb $t0, 5($a0)
+			lb $t0, 0($s0)	# DD
+			sb $t0, 4($s0)
+			lb $t0, 1($s0)
+			sb $t0, 5($s0)
 
 			addi $t0, $0, 32
-			sb $t0, 3($a0)
+			sb $t0, 3($s0)
 			
-			add $a1, $a0, $0
+			add $a1, $s0, $0
 			add $a0, $t2, $0
 			jal mm_to_month
 
-	# restore if type not A
+	# restore if type not A and return
 	convert_restore:
-		lw $a1, 8($sp)
-		lw $a0, 4($sp)
+		add $v0, $s0, $0 	
+		lw $s0, 4($sp)
 		lw $ra, 0($sp)
-		addi $sp, $sp, 12
+		addi $sp, $sp, 8
+		jr $ra
 # return
 	convert_return:
 		add $v0, $a0, $0
@@ -87,8 +93,9 @@ convert:
 
 # Ham chuyen MM sang Month ( vd: 01 --> "JAN" )
 # Tham so:
-#	a0: so thang (vd: 1)
-#	a1: dia chi chuoi can ghi
+#	$a0: so thang (vd: 1)
+#	$a1: dia chi chuoi can ghi
+# Ham dam bao se khong thay doi $a0 va $a1
 mm_to_month:
 	addi $t0, $0, 1
 	beq $a0, $t0, mm_to_month_1
