@@ -1,9 +1,10 @@
 # Ham yeu cau nguoi dung nhap ngay, thang, nam; tra ve chuoi co dinh dang "DD/MM/YYYY"
 # Tham so:
 #	a0: Dia chi cua vung nho luu chuoi ket qua
-# Ham dam bao a0 khong bi thay doi gia tri.
+# Ham se thay doi vung nho $a0 tro toi.
+# $a0 co the bi thay doi.
 # Tra ve:
-#	v0: 1 (successfully) hoac 0 (error)
+#	v0: Dia chi vung nho ket qua 
 readdate:
 	# backup
 	addi $sp, $sp, -20
@@ -11,7 +12,9 @@ readdate:
 	sw $s0, 4($sp)	
 	sw $s1, 8($sp)
 	sw $s2, 12($sp)
-	sw $a0, 16($sp)
+	sw $s3, 16($sp)
+
+	add $s3, $a0, $0	# s3: Dia chi vung nho ket qua
 	# create string memory
 	addi $sp, $sp, -12
 
@@ -109,7 +112,7 @@ readdate:
 
 	readdate_write:
 		# Cac thanh ghi a0, a1, a2 van luu ngay, thang, nam
-		lw $a3, 28($sp)	# Vung nho can ghi chuoi ket qua
+		add $a3, $s3, $0	# Vung nho can ghi chuoi ket qua
 		jal Date
 		
 		addi $a0, $0, 10
@@ -117,6 +120,7 @@ readdate:
 		syscall	# new line
 
 		addi $v0, $0, 1
+		add $v1, $s3, $0
 
 	readdate_restore:
 		# restore
@@ -125,7 +129,7 @@ readdate:
 		lw $s0, 4($sp)	
 		lw $s1, 8($sp)
 		lw $s2, 12($sp)
-		lw $a0, 16($sp)
+		lw $s3, 16($sp)
 		addi $sp, $sp, 20
 		jr $ra
 	
