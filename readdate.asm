@@ -1,4 +1,5 @@
 # Ham yeu cau nguoi dung nhap ngay, thang, nam; tra ve chuoi co dinh dang "DD/MM/YYYY"
+# Nguoi dung phai nhap toi khi dung thi thoi.
 # Tham so:
 #	a0: Dia chi cua vung nho luu chuoi ket qua
 # Ham se thay doi vung nho $a0 tro toi.
@@ -19,6 +20,8 @@ readdate:
 	addi $sp, $sp, -12
 
 	# print "Nhap ngay:"
+	readdate_begin_read:
+
 	lui $t0, 0x7061
 	ori $t0, $t0, 0x684e
 	sw $t0, 0($sp)
@@ -106,9 +109,13 @@ readdate:
 		addi $v0, $0, 4
 		add $a0, $sp, $0
 		syscall
-		# result
-		add $v0, $0, $0
-		j readdate_restore
+
+		addi $a0, $0, 10
+		addi $v0, $0, 11
+		syscall	# new line
+
+		# read again
+		j readdate_begin_read	
 
 	readdate_write:
 		# Cac thanh ghi a0, a1, a2 van luu ngay, thang, nam
@@ -119,8 +126,7 @@ readdate:
 		addi $v0, $0, 11
 		syscall	# new line
 
-		addi $v0, $0, 1
-		add $v1, $s3, $0
+		add $v0, $s3, $0
 
 	readdate_restore:
 		# restore
