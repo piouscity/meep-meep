@@ -1,3 +1,8 @@
+# Ham gettime.
+# Cac tham so:
+#	a0: char * chuoi time1.
+#	a1: char * chuoi time2.
+# Cac thanh ghi a bi thay doi: a0.
 GetTime:
 	addi $sp, $sp, -36 # Cap phat bo nho.
 	sw $ra, 0($sp) # Luu ra.

@@ -1,3 +1,10 @@
+# Ham Date.
+# Cac tham so
+#	a0: int ngay.
+#	a1: int thang.
+# 	a2: int nam.
+#	a3: char * time.
+# Cac thanh ghi a bi thay doi: a2.
 Date:
 	addi $t0, $zero, 10 # So 10.
 	#Xu ly ngay.

@@ -1,3 +1,7 @@
+# Ham Year.
+# Cac tham so:
+#	a0: char * chuoi time.
+# Cac thanh ghi a bi thay doi: khong co.
 Year:
 	addi $v0, $zero, 0 # Gan ket qua bang 0.
 	addi $t0, $zero, 10 # So 10.

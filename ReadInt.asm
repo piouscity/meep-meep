@@ -1,9 +1,10 @@
-ReadInt:
-	# Ham nhap mot so nguyen voi toi da mot luong ki tu cho truoc.
-	# Tham so: $a0 luu so ki tu toi da.
-	# Ket qua tra ve: so nguyen 4 byte luu gia tri ngay hoac -1 neu ngay nhap khong hop le.
-	#__________________________________________________________________________
-	
+# Ham readint.
+# Nhap mot so nguyen voi toi da mot luong ki tu cho truoc.
+# Cac tham so:
+#	a0: int so ki tu toi da.
+# Ket qua tra ve: so nguyen 4 byte luu gia tri ngay hoac -1 neu ngay nhap khong hop le.
+# Cac thanh ghi a bi thay doi: a0, a1
+ReadInt:	
 	# Backup
 	addi $sp, $sp, -12 # Phan nho cho cac thanh ghi s.
 	sw $s0, 0($sp) # Luu cac thanh ghi s.
