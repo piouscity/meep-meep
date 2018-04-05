@@ -1,12 +1,6 @@
 .data
-	time: .asciiz "05/04/2018"
-	str0: .asciiz "Sat"
-	str1: .asciiz "Sun"
-	str2: .asciiz "Mon"
-	str3: .asciiz "Tues"	
-	str4: .asciiz "Wed"
-	str5: .asciiz "Thurs"
-	str6: .asciiz "Fri"
+	time: .asciiz "31/03/1998"
+	time_ans: .space 10
 
 .text
 	la $a0, time
@@ -135,40 +129,43 @@ Weekday:
 	jal Month
 	add $s2, $zero, $v0 # lay gia tri thang
 
-	# $t1: 2 chu so cuoi cua nam
-	# $t2: 2 chu so dau cua nam
-
-	# Lay 2 so cuoi cua nam
+	# $t1: gia tri nam
 	addi $t0, $zero, 10 # so 10
-	lb $t1, 8($s0) # lay chu so thu 3 trong nam
+	lb $t1, 6($s0) # lay chu so dau tien trong nam
 	subi $t1, $t1, 48 # doi ki tu thanh so
 	mult $t1, $t0 # nhan 10
 	mflo $t1 # lay ket qua phep nhan
-	lb $t3, 9($s0) # lay chu so thu 4 trong nam
-	add $t1, $t1, $t3 # cong vao ($t1 la 2 chu so cuoi cua nam)
+	lb $t2, 7($s0) # lay chu so thu 2 trong nam
+	add $t1, $t1, $t2 # cong vao
+	subi $t1, $t1, 48 # doi so thanh ki tu
+	mult $t1, $t0
+	mflo $t1
+	lb $t2, 8($s0) # lay chu so thu 3 trong nam
+	add $t1, $t1, $t2 # cong vao
+	subi $t1, $t1, 48 # doi ki tu thanh so
+	mult $t1, $t0 # nhan 10
+	mflo $t1 # lay ket qua phep nhan
+	lb $t2, 9($s0) # lay chu so thu 4 trong nam
+	add $t1, $t1, $t2 # cong vao ($t1 la 2 chu so cuoi cua nam)
 	subi $t1, $t1, 48 # doi so thanh ki tu
 	add $s1, $s1, $t1 # cong ket qua
 
-	# 2 so cuoi cua nam chia 4
+	# nam chia 4
 	addi $t0, $zero, 4 # so 4
 	div $t1, $t0 # chia 4
-	mflo $t3 # lay phan nguyen
-	add $s1, $s1, $t3 # cong ket qua
+	mflo $t2 # lay phan nguyen
+	add $s1, $s1, $t2 # cong ket qua
 
-	# Lay 2 so dau cua nam
-	addi $t0, $zero, 10 # so 10
-	lb $t2, 6($s0) # lay chu so dau tien trong nam
-	subi $t2, $t2, 48 # doi ki tu thanh so
-	mult $t2, $t0 # nhan 10
-	mflo $t2 # lay ket qua phep nhan
-	lb $t3, 7($s0) # lay chu so thu 2 trong nam
-	add $t2, $t2, $t3 # cong vao ($s2 la 2 chu so dau cua nam)
-	subi $t2, $t2, 48 # doi so thanh ki tu
-	
-	# Lay the ki
-	beq $t1, $zero, end_century
-	addi $t2, $t2, 1
-	end_century:
+	# nam chia 100
+	addi $t0, $zero, 100 # so 100
+	div $t1, $t0 # chia 100
+	mflo $t2 # lay phan nguyen
+	sub $s1, $s1, $t2 # cong ket qua
+
+	# nam chia 400
+	addi $t0, $zero, 400
+	div $t1, $t0
+	mflo $t2
 	add $s1, $s1, $t2
 
 	# Kiem tra nam nhuan
@@ -301,70 +298,81 @@ Weekday:
 	mfhi $s1
 
 	# Xac dinh thu trong tuan
-	# Saturday
 	addi $t0, $zero, 0
-	beq $s1, $t0, Saturday
-	j not_Saturday
-	Saturday:
-		la $v0, str0
-		j end_weekday
-	not_Saturday:
-
-	# Sunday
+	beq $t0, $s1, Saturday
 	addi $t0, $zero, 1
-	beq $s1, $t0, Sunday
-	j not_Sunday
-	Sunday:
-		la $v0, str1
-		j end_weekday
-	not_Sunday:
-
-	# Monday
+	beq $t0, $s1, Sunday
 	addi $t0, $zero, 2
-	beq $s1, $t0, Monday
-	j not_Monday
-	Monday:
-		la $v0, str2
-		j end_weekday
-	not_Monday:
-
-	# Tuesday
+	beq $t0, $s1, Monday
 	addi $t0, $zero, 3
-	beq $s1, $t0, Tuesday
-	j not_Tuesday
-	Tuesday:
-		la $v0, str3
-		j end_weekday
-	not_Tuesday:
-
-	# Wednesday
+	beq $t0, $s1, Tuesday
 	addi $t0, $zero, 4
-	beq $s1, $t0, Wednesday
-	j not_Wednesday
-	Wednesday:
-		la $v0, str4
-		j end_weekday
-	not_Wednesday:
-
-	# Thursday
+	beq $t0, $s1, Wednesday
 	addi $t0, $zero, 5
-	beq $s1, $t0, Thursday
-	j not_Thursday
-	Thursday:
-		la $v0, str5
-		j end_weekday
-	not_Thursday:
-
-	# Friday
+	beq $t0, $s1, Thursday
 	addi $t0, $zero, 6
-	beq $s1, $t0, Friday
-	j not_Friday
-	Friday:
-		la $v0, str6
+	beq $t0, $s1, Friday
+
+	Saturday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x0074
+		ori $t1, 0x6153
 		j end_weekday
-	not_Friday:
-	
+
+	Sunday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x006e
+		ori $t1, 0x7553
+		j end_weekday
+
+	Monday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x006e
+		ori $t1, 0x6f4d
+		j end_weekday
+
+	Tuesday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x7365
+		ori $t1, 0x7554
+		j end_weekday
+
+	Wednesday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x0064
+		ori $t1, 0x6557
+		j end_weekday
+
+	Thursday:
+		lui $t0, 0x0000
+		ori $t0, 0x0073
+		lui $t1, 0x7275
+		ori $t1, 0x6854
+		j end_weekday
+
+	Friday:
+		lui $t0, 0x0000
+		ori $t0, 0x0000
+		lui $t1, 0x0069
+		ori $t1, 0x7246
+		j end_weekday		
 	end_weekday:
+		la $v0, time_ans
+		sb $t1, 0($v0)
+		srl $t1, $t1, 8
+		sb $t1, 1($v0)
+		srl $t1, $t1, 8
+		sb $t1, 2($v0)
+		srl $t1, $t1, 8
+		sb $t1, 3($v0)
+		sb $t0, 4($v0)
+		srl $t0, $t0, 8
+		sb $t0, 5($v0)
 	
 	lw $ra, 0($sp)
 	lw $s0, 4($sp)
